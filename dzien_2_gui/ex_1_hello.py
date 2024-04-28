@@ -33,10 +33,17 @@ if __name__ == '__main__':
 
     # na wierzchu
     # root.attributes('-topmost', 1)
-
-    label = ttk.Label(root, text='Hello world!')
-    label['text'] = 'New Hello!'
-    label.config(text='Third hello!!!')
+    i1 = tk.PhotoImage(file='../ex1.png')
+    # label = ttk.Label(root, text='Hello worldd asd asd as das d asd asd as d asd',
+    #                   font=('Arial', 16),
+    #                   image=i1,
+    #                   compound='top',
+    #                   wraplength=100)
+    label = ttk.Label(root, text='Hello worldd asd asd as das d asd asd as d asd',
+                      font=('Arial', 16),
+                      image=i1,
+                      compound='top',
+                      width=10)
 
 
     # root.lower()
@@ -80,6 +87,6 @@ if __name__ == '__main__':
 
     b1 = ttk.Button(root, text='Click Me!', command=b1_command('Prefix:'))
 
-    label.pack()
+    label.pack(ipadx=10, ipady=10)
     b1.pack()
     root.mainloop()
