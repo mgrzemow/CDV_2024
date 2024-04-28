@@ -16,14 +16,15 @@ if __name__ == '__main__':
     root = tk.Tk()
     # szerokoscxwysokosc+x_offset+y_offset
     root.geometry('700x400+5000+1000')
-    label = ttk.Label(root, text='Hello world!')
+    t1 = tk.StringVar(value='w początkowa')
+    label = ttk.Label(root, textvariable=t1)
     b1 = ttk.Button(root, text='Click Me!')
-    e1 = ttk.Entry(root)
-    def f2(event):
-        print('Drugi handler.', e1.get())
-        label['text'] = e1.get()
+    e1 = ttk.Entry(root, textvariable=t1)
+    # def f2(event):
+    #     print('Drugi handler.', e1.get())
+    #     label['text'] = e1.get()
 
-    b1.bind('<Button>', f2)
+    # b1.bind('<Button>', f2)
     # b1.focus()
     label.pack()
     e1.pack()
