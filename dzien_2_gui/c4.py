@@ -31,10 +31,18 @@ if __name__ == '__main__':
     root.title('Kursy walut')
     e1 = ttk.Entry()
     c1 = ttk.Combobox(values=list(kursy.keys()))
+    c1.current(0)
     b1 = ttk.Button(root, text='Wylicz kurs')
     label = ttk.Label(root, text='')
     def f1(event):
-        print(event)
+        try:
+            kwota = float(e1.get())
+            waluta = c1.get()
+            kurs = kursy[waluta]
+            wynik = kurs * kwota
+        except ValueError:
+            wynik = 'Błędne dane.'
+        label['text'] = wynik
 
     b1.bind('<Button>', f1)
     # b1.focus()
