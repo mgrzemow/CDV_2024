@@ -36,5 +36,9 @@ Wymagania do funkcji:
 - sprawdzamy zakresy wartości dla dzien, miesiac, nr_kolejny
 - zwraca 11 znakowy string
 """
-def generuj_pesel(dzien, miesiac, rok, nr, plec_facet):
-    return ''
+
+
+def generuj_pesel(dzien: float, miesiac: float, rok: float, nr: float, plec_facet: bool) -> str:
+    pesel = f'{str(rok)[2:]}{miesiac + 20 if rok >= 2000 else miesiac:02d}{dzien:02d}{nr:03d}{int(plec_facet)}'
+    pesel += str(sum(int(d) for d in pesel))[-1]
+    return pesel
