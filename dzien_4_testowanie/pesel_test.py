@@ -2,6 +2,7 @@ import json
 from pprint import pprint
 
 import pytest
+import zipfile
 from pesel import generuj_pesel
 import random
 import os
@@ -18,14 +19,47 @@ dane = [((29, 6, 2047, 308, False), '47262930801'),
         ((7, 8, 1982, 350, False), '82080735003')] * 100
 
 
+# fixture, który ręcznie:
+# 1. Przygotowuje dane do testów
+# 2. Zwraca dane yield
+# 3. Czyści po testach
 @pytest.fixture(scope='session')
 def dane_f():
     # rozpakować plik do pliku dane.json
     # wczytać z pliku dane
-    print('\ngeneruję dane testowe początek')
+    print('\nrozpakowuję dane')
+    with zipfile.ZipFile('dane.zip', 'r') as f:
+        f.extractall()
+    with open('dane.json') as f:
+        dane = json.load(f)
     yield dane
-    print('\ngeneruję dane testowe koniec')
     # skasować plik json
+    print('\nkasuję dane')
+    os.remove('dane.json')
+
+
+@pytest.fixture(scope='session')
+def zip_dir(tmp_path_factory):
+    tmp = tmp_path_factory.mktemp('tmp')
+    yield tmp
+
+
+@pytest.fixture(scope='session')
+def unzip_f(zip_dir):
+    with zipfile.ZipFile('dane.zip', 'r') as f:
+        f.extractall(zip_dir)
+    yield zip_dir / 'dane.json'
+
+
+# fixture, który ręcznie:
+# 1. Przygotowuje dane do testów korzystając z wbudowanego katalogu tymczasowego
+# 2. Zwraca dane yield
+# 3. pytest sam czyści po testach
+@pytest.fixture(scope='session')
+def dane_f_tmp_dir_factory(unzip_f):
+    with open(unzip_f) as f:
+        dane = json.load(f)
+    yield dane
 
 
 def test_bacics():
@@ -70,18 +104,45 @@ def test_plus_20():
             assert 21 <= int(pesel[2:4]) <= 32
 
 
-@pytest.mark.parametrize('wejscie, pesel', dane)
-def test_dane_parametrize(wejscie, pesel):
-    assert generuj_pesel(*wejscie) == pesel
+# @pytest.mark.parametrize('wejscie, pesel', dane)
+# def test_dane_parametrize(wejscie, pesel):
+#     assert generuj_pesel(*wejscie) == pesel
 
 
-def test_dane_fixture_1(dane_f):
-    for wejscie, pesel in dane_f:
+def test_dane_fixture_1(dane_f_tmp_dir_factory):
+    for wejscie, pesel in dane_f_tmp_dir_factory:
         assert generuj_pesel(*wejscie) == pesel
 
-def test_dane_fixture_2(dane_f):
-    for wejscie, pesel in dane_f:
+
+def test_dane_fixture_2(dane_f_tmp_dir_factory):
+    for wejscie, pesel in dane_f_tmp_dir_factory:
         assert generuj_pesel(*wejscie) == pesel
+
+
+def test_exceptions():
+    dane_value_error = [(12, 12, 1999, 11, '1'),
+                        ('12', 12, 1999, 11, 1),
+                        (12, '12', 1999, 11, 1),
+                        (12, 12, '1999', 11, True),
+                        (12, 12, 1999, '11', True),
+                        (12.2, 12, 1999, 11, True),
+                        (12, 12.5, 1999, 11, True),
+                        (12, 12, 1999.5, 11, True),
+                        (12, 12, 1999, 11.5, True),
+                        ]
+    for dane in dane_value_error:
+        with pytest.raises(ValueError):
+            generuj_pesel(*dane)
+
+
+def testuj_float():
+    dane_float = [((12.0, 12, 1999, 11, True), (12, 12, 1999, 11, True)),
+                  ((12, 12.0, 1999, 11, True), (12, 12, 1999, 11, True)),
+                  ((12, 12, 1999.0, 11, True), (12, 12, 1999, 11, True)),
+                  ((12, 12, 1999, 11.0, True), (12, 12, 1999, 11, True)),
+                  ]
+    for dane1, dane2 in dane_float:
+        assert generuj_pesel(*dane1) == generuj_pesel(*dane2)
 
 # if __name__ == '__main__':
 #     wynik = []

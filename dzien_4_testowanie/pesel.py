@@ -39,6 +39,27 @@ Wymagania do funkcji:
 
 
 def generuj_pesel(dzien: float, miesiac: float, rok: float, nr: float, plec_facet: bool) -> str:
+    if type(dzien) not in [float, int]:
+        raise ValueError('Dzien powinien być int lub float')
+    if type(miesiac) not in [float, int]:
+        raise ValueError('Miesiac powinien być int lub float')
+    if type(rok) not in [float, int]:
+        raise ValueError('Rok powinien być int lub float')
+    if type(nr) not in [float, int]:
+        raise ValueError('nr powinien być int lub float')
+    if type(plec_facet) is not bool:
+        raise ValueError('Plec_facet powinien być bool')
+
+    if int(dzien) != dzien:
+        raise ValueError('Wartość dnia powinna być okrągła')
+    if int(miesiac) != miesiac:
+        raise ValueError('Wartość miesiaca powinna być okrągła')
+    if int(rok) != rok:
+        raise ValueError('Wartość roku powinna być okrągła')
+    if int(nr) != nr:
+        raise ValueError('Wartość nr powinna być okrągła')
+    dzien, miesiac, rok, nr = int(dzien), int(miesiac), int(rok), int(nr)
+
     pesel = f'{str(rok)[2:]}{miesiac + 20 if rok >= 2000 else miesiac:02d}{dzien:02d}{nr:03d}{int(plec_facet)}'
     pesel += str(sum(int(d) for d in pesel))[-1]
     return pesel
