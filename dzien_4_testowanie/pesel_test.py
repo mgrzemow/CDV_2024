@@ -4,6 +4,7 @@ from pprint import pprint
 import pytest
 from pesel import generuj_pesel
 import random
+import os
 
 dane = [((29, 6, 2047, 308, False), '47262930801'),
         ((1, 4, 2053, 186, True), '53240118611'),
@@ -14,7 +15,17 @@ dane = [((29, 6, 2047, 308, False), '47262930801'),
         ((20, 9, 2087, 260, False), '87292026006'),
         ((21, 6, 1935, 572, False), '35062157201'),
         ((18, 1, 1906, 366, True), '06011836612'),
-        ((7, 8, 1982, 350, False), '82080735003')]
+        ((7, 8, 1982, 350, False), '82080735003')] * 100
+
+
+@pytest.fixture(scope='session')
+def dane_f():
+    # rozpakować plik do pliku dane.json
+    # wczytać z pliku dane
+    print('\ngeneruję dane testowe początek')
+    yield dane
+    print('\ngeneruję dane testowe koniec')
+    # skasować plik json
 
 
 def test_bacics():
@@ -59,16 +70,29 @@ def test_plus_20():
             assert 21 <= int(pesel[2:4]) <= 32
 
 
-if __name__ == '__main__':
-    wynik = []
-    for _ in range(10):
-        dzien = random.randint(1, 31)
-        miesiac = random.randint(1, 12)
-        rok = random.randint(1901, 2099)
-        nr = random.randint(0, 999)
-        plec_facet = bool(random.randint(0, 1))
-        pesel = generuj_pesel(dzien, miesiac, rok, nr, plec_facet)
-        wynik.append(((dzien, miesiac, rok, nr, plec_facet), pesel))
-    pprint(wynik)
-    with open('dane.json', 'wt', encoding='utf8') as f:
-        json.dump(wynik, f)
+@pytest.mark.parametrize('wejscie, pesel', dane)
+def test_dane_parametrize(wejscie, pesel):
+    assert generuj_pesel(*wejscie) == pesel
+
+
+def test_dane_fixture_1(dane_f):
+    for wejscie, pesel in dane_f:
+        assert generuj_pesel(*wejscie) == pesel
+
+def test_dane_fixture_2(dane_f):
+    for wejscie, pesel in dane_f:
+        assert generuj_pesel(*wejscie) == pesel
+
+# if __name__ == '__main__':
+#     wynik = []
+#     for _ in range(10):
+#         dzien = random.randint(1, 31)
+#         miesiac = random.randint(1, 12)
+#         rok = random.randint(1901, 2099)
+#         nr = random.randint(0, 999)
+#         plec_facet = bool(random.randint(0, 1))
+#         pesel = generuj_pesel(dzien, miesiac, rok, nr, plec_facet)
+#         wynik.append(((dzien, miesiac, rok, nr, plec_facet), pesel))
+#     pprint(wynik)
+#     with open('dane.json', 'wt', encoding='utf8') as f:
+#         json.dump(wynik, f)
