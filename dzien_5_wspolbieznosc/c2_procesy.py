@@ -1,5 +1,4 @@
-import functools
-import threading
+import multiprocessing
 import timeit
 
 import requests
@@ -18,7 +17,6 @@ def dos(n):
         #     print(r.status_code)
 
 
-
 def fibo(n):
     x1 = 1
     x2 = 1
@@ -33,21 +31,21 @@ def n_times_fibo(n):
         fibo(10_000)
 
 
-def uruchom_w_watkach(funkcja, laczna_ilosc_operacji, ilosc_watkow):
-    op_na_watek = laczna_ilosc_operacji // ilosc_watkow
-    lista_watkow = []
-    for _ in range(ilosc_watkow):
-        lista_watkow.append(threading.Thread(target=funkcja, args=(op_na_watek,)))
-    for t in lista_watkow:
+def uruchom_w_procesach(funkcja, laczna_ilosc_operacji, ilosc_procesow):
+    op_na_proces = laczna_ilosc_operacji // ilosc_procesow
+    lista_procesow = []
+    for _ in range(ilosc_procesow):
+        lista_procesow.append(multiprocessing.Process(target=funkcja, args=(op_na_proces,)))
+    for t in lista_procesow:
         t.start()
-    for t in lista_watkow:
+    for t in lista_procesow:
         t.join()
 
 
 if __name__ == '__main__':
-    x = [8, 16, 32, 64, 128]
+    x = [8, 16, 24, 32]
     for i in x:
-        t = timeit.timeit(f'uruchom_w_watkach(dos, 1024, {i})',
+        t = timeit.timeit(f'uruchom_w_procesach(n_times_fibo, 160_000, {i})',
                           number=1,
                           globals=globals(),
                           )
