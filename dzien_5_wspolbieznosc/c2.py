@@ -10,12 +10,13 @@ import requests
 
 # 1 1 2 3 5 8 13 21 ...
 
-def dos(n):
+def dos(n, lista_bledow):
     url = 'https://gatling.io/'
+    url = 'http://httpbin.org/get'
     for _ in range(n):
         r = requests.get(url)
-        # if r.status_code != 200:
-        #     print(r.status_code)
+        if r.status_code != 200:
+            lista_bledow.append(r.status_code)
 
 
 
@@ -33,11 +34,11 @@ def n_times_fibo(n):
         fibo(10_000)
 
 
-def uruchom_w_watkach(funkcja, laczna_ilosc_operacji, ilosc_watkow):
+def uruchom_w_watkach(funkcja, laczna_ilosc_operacji, ilosc_watkow, lista_bledow):
     op_na_watek = laczna_ilosc_operacji // ilosc_watkow
     lista_watkow = []
     for _ in range(ilosc_watkow):
-        lista_watkow.append(threading.Thread(target=funkcja, args=(op_na_watek,)))
+        lista_watkow.append(threading.Thread(target=funkcja, args=(op_na_watek,lista_bledow)))
     for t in lista_watkow:
         t.start()
     for t in lista_watkow:
@@ -45,10 +46,12 @@ def uruchom_w_watkach(funkcja, laczna_ilosc_operacji, ilosc_watkow):
 
 
 if __name__ == '__main__':
-    x = [8, 16, 32, 64, 128]
+    x = [64, 128, 256, 512]
     for i in x:
-        t = timeit.timeit(f'uruchom_w_watkach(dos, 1024, {i})',
+        lista_bledow = []
+        t = timeit.timeit(f'uruchom_w_watkach(dos, 1024, {i}, lista_bledow)',
                           number=1,
                           globals=globals(),
                           )
         print(f'{i}: {t:.2f} s.')
+        print(lista_bledow)

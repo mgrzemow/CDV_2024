@@ -22,19 +22,22 @@ def n_times_fibo(n):
 
 class MojCallback:
     def __init__(self, name, total):
-        ...
+        self.name = name
+        self.total = total
+        self.done = 0
+        self.results = []
 
     def all_done(self):
-        ...
+        return self.done == self.total
 
     def __call__(self, wynik):
         # zliczanie ilosci
+        self.done += 1
         # zbieranie wynikow??
-        ...
+        self.results.append(wynik)
 
     def __repr__(self):
-        # 'Przykladowe taski 23 / 100 ...'
-        ...
+        return f'{self.name} {self.done} / {self.total} ...'
 
 
 if __name__ == '__main__':
@@ -66,16 +69,16 @@ if __name__ == '__main__':
         #     time.sleep(1)
         # print(r.get())
         zadania = [100] * 100
-        lista_taskow = [pool.apply_async(n_times_fibo, (p,)) for p in zadania]
-        while not all(t.ready() for t in lista_taskow):
-            done = sum(1 for t in lista_taskow if t.ready())
-            print(f'Done {done} / {len(lista_taskow)}...')
-            time.sleep(1)
-        print([t.get() for t in lista_taskow])
-
+        # lista_taskow = [pool.apply_async(n_times_fibo, (p,)) for p in zadania]
+        # while not all(t.ready() for t in lista_taskow):
+        #     done = sum(1 for t in lista_taskow if t.ready())
+        #     print(f'Done {done} / {len(lista_taskow)}...')
+        #     time.sleep(1)
+        # print([t.get() for t in lista_taskow])
+        #
         mc = MojCallback('Przykładowa paczka zadań', len(zadania))
         lista_taskow = [pool.apply_async(n_times_fibo, (p,), callback=mc) for p in zadania]
         while not mc.all_done():
             print(mc)
-            time.sleep()
-        print(mc.zadania)
+            time.sleep(1)
+        print(mc.results)
